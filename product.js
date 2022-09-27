@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true,
-    min: 0,
+    min: [0, 'Price must be positive ya dumbo!'],
   },
   onSale: {
     type: Boolean,
@@ -33,9 +33,34 @@ const productSchema = new mongoose.Schema({
       default: 0,
     },
   },
+  size: {
+    type: String,
+    enum: ['S', 'M', 'L'],
+  },
 });
 
+productSchema.methods.toggleOnSale = function () {
+  this.onSale = !this.onSale;
+  return this.save();
+};
+
+productSchema.methods.addCategory = function (newCat) {
+  this.categories.push(newCat);
+  return this.save();
+};
+
 const Product = mongoose.model('Product', productSchema);
+
+const findProdict = async () => {
+  const foundProduct = await Product.findOne({ name: 'Bike Helmet' });
+  console.log(foundProduct);
+  await foundProduct.toggleOnSale();
+  console.log(foundProduct);
+  await foundProduct.addCategory('Outdoors');
+  console.log(foundProduct);
+};
+
+findProdict();
 
 // const bike = new Product({
 //   name: 'Tire Pump',
@@ -53,16 +78,16 @@ const Product = mongoose.model('Product', productSchema);
 //     console.log(err);
 //   });
 
-Product.findOneAndUpdate(
-  { name: 'Tire Pump' },
-  { price: -19.99 },
-  { new: true, runValidators: true }
-)
-  .then((data) => {
-    console.log('It worked!');
-    console.log(data);
-  })
-  .catch((err) => {
-    console.log('Oh no, error!');
-    console.log(err);
-  });
+// Product.findOneAndUpdate(
+//   { name: 'Tire Pump' },
+//   { price: -19.99 },
+//   { new: true, runValidators: true }
+// )
+//   .then((data) => {
+//     console.log('It worked!');
+//     console.log(data);
+//   })
+//   .catch((err) => {
+//     console.log('Oh no, error!');
+//     console.log(err);
+//   });
